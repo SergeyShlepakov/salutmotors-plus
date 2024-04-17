@@ -7,7 +7,7 @@
 
 
 ## Запуск проекта
-
+В директории srv необходимо создать .env файл, содержащий переменные окружения.
 Для соединения с Postgresql используется переменная окружения `APP_PG_URL` 
 (например: `postgresql://user:password@localhost:5432/test_pagination?sslmode=disable`). 
 
