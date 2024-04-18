@@ -4,6 +4,7 @@ import Table from "react-bootstrap/Table";
 import {Alert, Container} from "react-bootstrap";
 import {GetServerSideProps, GetServerSidePropsContext} from "next";
 import MyPagination from "@/components/MyPagination";
+import { useState } from "react";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -41,11 +42,42 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext): Promi
 
 
 export default function Home({statusCode, count, users}: TGetServerSideProps) {
-  if (statusCode !== 200) {
-    return <Alert variant={'danger'}>Ошибка {statusCode} при загрузке данных</Alert>
+  const initialPage = 1;
+  const [ currentPage, setCurrentPage ] = useState(initialPage);
+  const [ rStatusCode, setRStatusCode ] = useState(statusCode);
+  const [ pageCount, setPageCount ] = useState(count);
+  const [ userList, setUserList ] = useState(users);
+
+  if (rStatusCode !== 200) {
+    return <Alert variant={'danger'}>Ошибка {rStatusCode} при загрузке данных</Alert>
   }
 
-  const initialPage = 1;
+  async function navigateToPage(page: number) {
+    if (!page || currentPage === page) {
+      return;
+    }
+
+    setCurrentPage(page);
+
+    const res = fetch(`http://localhost:3000/users?page=${page}`, {method: 'GET'})
+
+    res.then(async (rs) => {
+      try {
+        const response = await rs.json();
+
+        setRStatusCode(rs.status);
+        if (rs.ok) {
+          setPageCount(response.count);
+          setUserList(response.users);
+        } else {
+          setPageCount(0);
+          setUserList([]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
 
   return (
     <>
@@ -73,7 +105,7 @@ export default function Home({statusCode, count, users}: TGetServerSideProps) {
             </thead>
             <tbody>
             {
-              users.map((user) => (
+              userList.map((user) => (
                 <tr key={user.id}>
                   <td>{user.id}</td>
                   <td>{user.firstname}</td>
@@ -87,7 +119,7 @@ export default function Home({statusCode, count, users}: TGetServerSideProps) {
             </tbody>
           </Table>
 
-          <MyPagination count={count} page={initialPage}></MyPagination>
+          <MyPagination count={pageCount} page={initialPage} navigate={navigateToPage}></MyPagination>
 
         </Container>
       </main>
