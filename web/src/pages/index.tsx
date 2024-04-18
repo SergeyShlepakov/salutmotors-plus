@@ -3,6 +3,7 @@ import {Inter} from "next/font/google";
 import Table from "react-bootstrap/Table";
 import {Alert, Container} from "react-bootstrap";
 import {GetServerSideProps, GetServerSidePropsContext} from "next";
+import MyPagination from "@/components/MyPagination";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -39,10 +40,12 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext): Promi
 }) satisfies GetServerSideProps<TGetServerSideProps>
 
 
-export default function Home({statusCode, users}: TGetServerSideProps) {
+export default function Home({statusCode, count, users}: TGetServerSideProps) {
   if (statusCode !== 200) {
     return <Alert variant={'danger'}>Ошибка {statusCode} при загрузке данных</Alert>
   }
+
+  const initialPage = 1;
 
   return (
     <>
@@ -84,7 +87,7 @@ export default function Home({statusCode, users}: TGetServerSideProps) {
             </tbody>
           </Table>
 
-          {/*TODO add pagination*/}
+          <MyPagination count={count} page={initialPage}></MyPagination>
 
         </Container>
       </main>
