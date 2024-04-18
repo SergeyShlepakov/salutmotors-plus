@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import Pagination from "react-bootstrap/Pagination";
 
 export default function MyPagination(props) {
@@ -6,8 +6,9 @@ export default function MyPagination(props) {
   const limit = 10;
   const maxPageCount = Math.ceil(props.count / step);
   const centerIndex = Math.ceil(limit / 2);
-  const [ currentPage, setCurrentPage ] = useState(validatePageRange(props.page,));
+  const [ currentPage, setCurrentPage ] = useState(validatePageRange(props.page));
   const pages = generatePageList(currentPage, limit);
+  const navigateToPage = props.navigate;
 
   function validatePageRange(page: number): number {
     if (page < 1) {
@@ -84,6 +85,10 @@ export default function MyPagination(props) {
       setCurrentPage(maxPageCount);
     }
   }
+
+  useEffect(() => {
+    navigateToPage(currentPage);
+  }, [currentPage]);
 
   return (
     <Pagination>
