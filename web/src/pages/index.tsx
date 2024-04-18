@@ -17,6 +17,7 @@ type TUserItem = {
 
 type TGetServerSideProps = {
   statusCode: number
+  count: number
   users: TUserItem[]
 }
 
@@ -25,14 +26,15 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext): Promi
   try {
     const res = await fetch("http://localhost:3000/users", {method: 'GET'})
     if (!res.ok) {
-      return {props: {statusCode: res.status, users: []}}
+      return {props: {statusCode: res.status, count: 0, users: []}}
     }
 
+    const response = await res.json();
     return {
-      props: {statusCode: 200, users: await res.json()}
+      props: {statusCode: 200, count: response.count, users: response.users}
     }
   } catch (e) {
-    return {props: {statusCode: 500, users: []}}
+    return {props: {statusCode: 500, count: 0, users: []}}
   }
 }) satisfies GetServerSideProps<TGetServerSideProps>
 
